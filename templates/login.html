@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Log In — CyberVerse{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-eyebrow">// session.authenticate()</div>
+    <h1>Welcome back</h1>
+    <p class="auth-sub">Log in to continue your learning streak.</p>
+
+    <div class="form-card">
+        <form method="POST" action="{{ url_for('login') }}" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="field">
+                <label for="username">{{ form.username.label.text }}</label>
+                {{ form.username(id="username", placeholder="Your username") }}
+                {% for err in form.username.errors %}
+                    <div class="field-error">{{ err }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label for="password">{{ form.password.label.text }}</label>
+                {{ form.password(id="password", placeholder="Your password") }}
+                {% for err in form.password.errors %}
+                    <div class="field-error">{{ err }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field-checkbox">
+                {{ form.remember(id="remember") }}
+                <label for="remember">{{ form.remember.label.text }}</label>
+            </div>
+
+            {{ form.submit(class="btn btn-block") }}
+        </form>
+    </div>
+
+    <p class="auth-switch">Don't have an account? <a href="{{ url_for('register') }}">Sign up for free</a></p>
+<p class="auth-switch"><a href="{{ url_for('forgot_password') }}">Forgot your password?</a></p>
+</div>
+{% endblock %}
