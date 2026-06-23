@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}CyberVerse — Cybersecurity Learning Portal{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="terminal-window" aria-hidden="true">
+        <div class="terminal-bar">
+            <span class="terminal-dot dot-red"></span>
+            <span class="terminal-dot dot-amber"></span>
+            <span class="terminal-dot dot-green"></span>
+        </div>
+        <div class="terminal-body" id="terminal-text">
+            <span class="prompt">$ </span><span id="typed-text"></span><span class="cursor"></span>
+        </div>
+    </div>
+
+    <h1>Learn Cybersecurity<br><span class="accent">the interactive way.</span></h1>
+    <p class="lead">7 bite-sized modules. Real quizzes. Memory challenges.<br>
+    Complete each lesson to unlock the next. Most students finish in 7 days — or one sitting.</p>
+    <div class="hero-ctas">
+        <a href="{{ url_for('register') }}" class="btn">Start Learning →</a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline">Log In</a>
+    </div>
+</section>
+
+<div class="feature-grid">
+    {% set modules_data = [
+        ("01", "Phishing Awareness", "Spot the bait before you bite."),
+        ("02", "Password Security", "Your first line of defence."),
+        ("03", "Social Engineering", "Hacking the human, not the machine."),
+        ("04", "Malware", "Know the enemy code."),
+        ("05", "Safe Browsing", "Walk the web without landmines."),
+        ("06", "Email Security", "Your inbox is a battlefield."),
+        ("07", "Cyber Hygiene", "Daily habits that keep you secure."),
+    ] %}
+    {% for num, title, desc in modules_data %}
+    <div class="feature-card">
+        <div class="num">MODULE {{ num }}</div>
+        <h3>{{ title }}</h3>
+        <p>{{ desc }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const lines = [
+    "> Initializing CyberVerse...",
+    "> Loading 7 security modules...",
+    "> Ready. Welcome, learner.",
+];
+let lineIdx = 0, charIdx = 0;
+const el = document.getElementById("typed-text");
+function type() {
+    if (lineIdx >= lines.length) return;
+    if (charIdx < lines[lineIdx].length) {
+        el.textContent += lines[lineIdx][charIdx++];
+        setTimeout(type, 38);
+    } else {
+        el.textContent += "\n";
+        lineIdx++; charIdx = 0;
+        setTimeout(type, 420);
+    }
+}
+setTimeout(type, 500);
+</script>
+{% endblock %}
