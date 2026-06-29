@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ module.title }} — CyberVerse{% endblock %}
+{% block content %}
+<div class="lesson-wrap">
+
+    <div class="lesson-eyebrow">// module_{{ module.order }}.read()</div>
+    <h1>{{ module.title }}</h1>
+
+    <div class="theory-card">
+        {{ module.theory_html | safe }}
+    </div>
+
+    <div class="lesson-actions">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline">← Dashboard</a>
+        {% if progress.quiz_passed %}
+            <a href="{{ url_for('game', module_id=module.id) }}" class="btn">Memory Challenge →</a>
+        {% else %}
+            <a href="{{ url_for('quiz', module_id=module.id) }}" class="btn">Take the Quiz →</a>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
