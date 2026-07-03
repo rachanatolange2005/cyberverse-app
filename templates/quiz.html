@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Quiz: {{ module.title }} — CyberVerse{% endblock %}
+{% block content %}
+<div class="quiz-wrap">
+
+    <div class="lesson-eyebrow">// module_{{ module.order }}.quiz()</div>
+    <h1>Quiz: {{ module.title }}</h1>
+    <p class="quiz-progress">{{ questions|length }} questions &nbsp;·&nbsp; Pass mark: 60%</p>
+
+    <form method="POST" action="{{ url_for('quiz', module_id=module.id) }}" id="quiz-form">
+        {{ form.hidden_tag() if form else '' }}
+
+        {% for q in questions %}
+        <div class="q-card">
+            <div class="q-label">QUESTION {{ loop.index }} / {{ questions|length }}</div>
+            <div class="q-text">{{ q.question }}</div>
+            <div class="options">
+                {% for opt_key, opt_text in [('a', q.option_a), ('b', q.option_b), ('c', q.option_c), ('d', q.option_d)] %}
+                <div>
+                    <input type="radio" name="q{{ q.id }}" id="q{{ q.id }}_{{ opt_key }}" value="{{ opt_key }}" required>
+                    <label for="q{{ q.id }}_{{ opt_key }}"><strong style="color:var(--text-dim);font-family:var(--mono);">{{ opt_key|upper }}.</strong> {{ opt_text }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="quiz-footer">
+            <button type="submit" class="btn" id="submit-btn">Submit Answers →</button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Warn if not all answered
+document.getElementById("quiz-form").addEventListener("submit", function(e) {
+    const total = {{ questions|length }};
+    let answered = 0;
+    {% for q in questions %}
+    if (document.querySelector('input[name="q{{ q.id }}"]:checked')) answered++;
+    {% endfor %}
+    if (answered < total) {
+        if (!confirm(`You've only answered ${answered} of ${total} questions. Submit anyway?`)) {
+            e.preventDefault();
+        }
+    }
+});
+</script>
+{% endblock %}
