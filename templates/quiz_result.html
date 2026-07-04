@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Quiz Result — CyberVerse{% endblock %}
+{% block content %}
+<div class="quiz-wrap">
+
+    <div class="result-card {{ 'failed' if not prog.quiz_passed else '' }}">
+        <div class="result-score">{{ score }} / {{ total }}</div>
+        <div class="result-label">{{ (score / total * 100)|round|int }}% correct</div>
+        <span class="result-badge {{ 'badge-pass' if prog.quiz_passed else 'badge-fail' }}">
+            {{ "✓ PASSED" if prog.quiz_passed else "✗ NOT PASSED — 60% needed" }}
+        </span>
+
+        {% if prog.quiz_passed %}
+            <p style="color:var(--text-dim);margin:0 0 6px;">Great work! You've unlocked the memory challenge for this module.</p>
+        {% else %}
+            <p style="color:var(--text-dim);margin:0 0 6px;">Review the theory and try again — you need {{ (total * 0.6)|round(0, 'ceil')|int }} correct answers to pass.</p>
+        {% endif %}
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px;">
+        <a href="{{ url_for('module_theory', module_id=module.id) }}" class="btn btn-outline">← Re-read Theory</a>
+        {% if prog.quiz_passed %}
+            <a href="{{ url_for('game', module_id=module.id) }}" class="btn">Memory Challenge →</a>
+        {% else %}
+            <a href="{{ url_for('quiz', module_id=module.id) }}" class="btn">Retry Quiz →</a>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
