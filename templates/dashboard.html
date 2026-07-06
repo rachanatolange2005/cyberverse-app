@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CyberVerse{% endblock %}
+{% block content %}
+<div class="dash-wrap">
+
+    <div class="dash-header">
+        <div>
+            <h1>Hey, {{ current_user.username }} 👋</h1>
+            <p>
+                {% if completed_count == total_modules %}
+                    🎉 You've completed all {{ total_modules }} modules. Legendary.
+                {% else %}
+                    Module {{ completed_count + 1 }} of {{ total_modules }} — keep going.
+                {% endif %}
+            </p>
+        </div>
+        <div class="streak-pill">
+            🔥 <strong>{{ current_user.current_streak }}-day</strong> streak
+            &nbsp;·&nbsp; best: {{ current_user.longest_streak }}
+        </div>
+    </div>
+
+    <!-- Overall progress bar -->
+    <div class="progress-bar-outer" title="{{ completed_count }}/{{ total_modules }} modules complete">
+        <div class="progress-bar-inner" style="width: {{ (completed_count / total_modules * 100)|round|int }}%"></div>
+    </div>
+
+    <!-- 7-day info banner for new users -->
+    {% if completed_count == 0 %}
+    <div class="flash flash-info" style="margin-bottom:24px;">
+        <span class="flash-tag">[TIP]</span>
+        This course covers 7 cybersecurity topics. Most learners take one topic per day over a week —
+        but you can blitz through all of it in one session if you're up for it.
+        Complete each module's theory → quiz → challenge to unlock the next.
+    </div>
+    {% endif %}
+
+    <!-- Module chain -->
+    <div class="chain">
+        <div class="chain-line"></div>
+        {% for module in modules %}
+            {% set prog = progress_map.get(module.id) %}
+            {% set is_completed = prog and prog.completed %}
+            {% set is_unlocked = module.order <= unlocked_up_to %}
+            {% set is_locked = not is_unlocked %}
+
+            <div class="module-node {% if is_completed %}is-completed{% elif is_unlocked %}is-unlocked{% else %}is-locked{% endif %}">
+                <div class="node-icon">
+                    {% if is_completed %}✓
+                    {% elif is_unlocked %}{{ module.order }}
+                    {% else %}🔒
+                    {% endif %}
+                </div>
+
+                <div class="node-body">
+                    <div class="node-eyebrow">Day {{ module.order }} · Module {{ module.order }}</div>
+                    <h3>{{ module.title }}</h3>
+                    <p>{{ module.summary }}</p>
+                </div>
+
+                <div class="node-status">
+                    {% if is_completed %}
+                        <span class="status-done">✓ Complete</span><br>
+                        <a href="{{ url_for('module_theory', module_id=module.id) }}" style="color:var(--text-faint);font-size:0.72rem;">Review</a>
+                    {% elif is_unlocked %}
+                        {% if prog and prog.quiz_passed %}
+                            <span class="status-progress">Quiz ✓ — Game left</span><br>
+                            <a href="{{ url_for('game', module_id=module.id) }}" class="btn" style="padding:8px 16px;font-size:0.8rem;margin-top:6px;">Play →</a>
+                        {% elif prog and prog.theory_viewed %}
+                            <span class="status-progress">Reading ✓ — Quiz left</span><br>
+                            <a href="{{ url_for('quiz', module_id=module.id) }}" class="btn" style="padding:8px 16px;font-size:0.8rem;margin-top:6px;">Take Quiz →</a>
+                        {% else %}
+                            <span class="status-progress">Unlocked</span><br>
+                            <a href="{{ url_for('module_theory', module_id=module.id) }}" class="btn" style="padding:8px 16px;font-size:0.8rem;margin-top:6px;">Start →</a>
+                        {% endif %}
+                    {% else %}
+                        <span class="status-locked">🔒 Locked</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
