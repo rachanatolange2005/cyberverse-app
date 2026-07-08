@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Course Complete — CyberVerse{% endblock %}
+{% block content %}
+<div style="max-width:680px;margin:80px auto;padding:0 24px;text-align:center;">
+
+    <div style="font-size:4rem;margin-bottom:16px;">🛡️</div>
+
+    <div style="font-family:var(--mono);color:var(--green);font-size:0.85rem;letter-spacing:0.1em;margin-bottom:12px;">
+        // mission_complete
+    </div>
+
+    <h1 style="font-size:2.4rem;margin-bottom:12px;">
+        Congratulations, <span style="color:var(--green)">{{ current_user.username }}</span>!
+    </h1>
+
+    <p style="color:var(--text-dim);font-size:1.05rem;margin-bottom:32px;">
+        You've completed all <strong style="color:var(--white)">7 / 7</strong> CyberVerse modules.<br>
+        You now have a solid foundation in cybersecurity awareness. 🎉
+    </p>
+
+    <!-- Stats card -->
+    <div style="background:var(--panel);border:1px solid var(--green-dim);border-radius:var(--radius);padding:32px;margin-bottom:32px;">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+            <div>
+                <div style="font-family:var(--mono);font-size:2rem;font-weight:800;color:var(--green);">7/7</div>
+                <div style="font-family:var(--mono);font-size:0.72rem;color:var(--text-faint);">Modules Complete</div>
+            </div>
+            <div>
+                <div style="font-family:var(--mono);font-size:2rem;font-weight:800;color:var(--amber);">🔥 {{ current_user.current_streak }}</div>
+                <div style="font-family:var(--mono);font-size:0.72rem;color:var(--text-faint);">Day Streak</div>
+            </div>
+            <div>
+                <div style="font-family:var(--mono);font-size:2rem;font-weight:800;color:var(--cyan);">{{ current_user.longest_streak }}</div>
+                <div style="font-family:var(--mono);font-size:0.72rem;color:var(--text-faint);">Best Streak</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modules completed list -->
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:32px;text-align:left;">
+        <div style="font-family:var(--mono);color:var(--cyan);font-size:0.78rem;margin-bottom:16px;">// completed_modules</div>
+        {% set module_names = [
+            "Phishing Awareness",
+            "Password Security",
+            "Social Engineering",
+            "Malware",
+            "Safe Internet Browsing",
+            "Email Security",
+            "Cyber Hygiene"
+        ] %}
+        {% for name in module_names %}
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.9rem;">
+            <span style="color:var(--green);font-family:var(--mono);font-weight:700;">✓</span>
+            <span style="font-family:var(--mono);color:var(--text-dim);font-size:0.72rem;">0{{ loop.index }}</span>
+            <span>{{ name }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <form method="POST" action="{{ url_for('reset_progress') }}" onsubmit="return confirm('This will reset all your module progress. Your account, streak and profile stay. Are you sure?')">
+    <button type="submit" class="btn" style="background:var(--amber);border-color:var(--amber);color:#000;">
+        🔄 Restart Course
+    </button>
+</form>
+    </div>
+
+    <p style="color:var(--text-faint);font-family:var(--mono);font-size:0.76rem;margin-top:24px;">
+        Restarting keeps your account, streak and profile — only module progress resets.
+    </p>
+
+</div>
+{% endblock %}
