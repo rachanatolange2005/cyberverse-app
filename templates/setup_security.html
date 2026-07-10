@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Setup Security Questions — CyberVerse{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-eyebrow">// security.setup()</div>
+    <h1>Set Security Questions</h1>
+    <p class="auth-sub">These will be used to verify your identity if you forget your password.</p>
+    <div class="form-card">
+        <form method="POST" action="{{ url_for('setup_security') }}" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="field">
+                <label>What is your pet's name?</label>
+                {{ form.security_answer(placeholder="Enter your answer") }}
+                {% for err in form.security_answer.errors %}
+                    <div class="field-error">{{ err }}</div>
+                {% endfor %}
+            </div>
+            <div class="field">
+                <label>What is your favourite childhood friend's name?</label>
+                {{ form.security_answer2(placeholder="Enter your answer") }}
+                {% for err in form.security_answer2.errors %}
+                    <div class="field-error">{{ err }}</div>
+                {% endfor %}
+            </div>
+            <div class="field">
+                <label>What is your favourite movie?</label>
+                {{ form.security_answer3(placeholder="Enter your answer") }}
+                {% for err in form.security_answer3.errors %}
+                    <div class="field-error">{{ err }}</div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-block">Save Security Answers</button>
+        </form>
+    </div>
+    <p class="auth-switch"><a href="{{ url_for('profile') }}">← Back to Profile</a></p>
+</div>
+{% endblock %}
