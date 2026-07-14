@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Profile — CyberVerse{% endblock %}
+{% block content %}
+<div class="profile-wrap">
+
+    <div class="profile-header">
+        <img class="profile-avatar"
+             src="{{ url_for('static', filename='uploads/profile_pics/' + current_user.profile_pic) if current_user.profile_pic != 'default.png' else url_for('static', filename='img/default.svg') }}"
+             alt="Profile photo">
+        <div>
+            <h1>{{ current_user.username }}</h1>
+            <div class="join-date">Joined {{ current_user.created_at.strftime('%B %Y') }}</div>
+        </div>
+    </div>
+
+  
+    <!-- Stats -->
+    <div class="profile-section">
+        <div class="profile-section-title">// your_stats</div>
+        <div class="stat-row">
+            <div class="stat-box">
+                <div class="s-val">🔥 {{ current_user.current_streak }}</div>
+                <div class="s-lbl">Current streak</div>
+            </div>
+            <div class="stat-box">
+                <div class="s-val">{{ current_user.longest_streak }}</div>
+                <div class="s-lbl">Longest streak</div>
+            </div>
+            <div class="stat-box">
+                <div class="s-val">
+                    {% set done = current_user.progress | selectattr('completed') | list | length %}
+                    {{ done }}/7
+                </div>
+                <div class="s-lbl">Modules done</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Question -->
+    <div class="profile-section">
+        <div class="profile-section-title">// security_question</div>
+        {% if current_user.security_answer %}
+            <p style="color:var(--green);font-family:var(--mono);font-size:0.85rem;">✓ Security question is set</p>
+            <a href="{{ url_for('setup_security') }}" class="btn btn-outline">Update Security Answer</a>
+        {% else %}
+            <p style="color:var(--amber);font-family:var(--mono);font-size:0.85rem;">⚠ Security question not set yet</p>
+            <a href="{{ url_for('setup_security') }}" class="btn">Set Security Question</a>
+        {% endif %}
+    </div>
+
+    <!-- Change username -->
+    <div class="profile-section">
+        <div class="profile-section-title">// change_username</div>
+        <form method="POST" action="{{ url_for('profile') }}" novalidate>
+            {{ username_form.hidden_tag() }}
+            <input type="hidden" name="form_type" value="uname-submit">
+            <div class="field">
+                <label>New Username</label>
+                {{ username_form.username(placeholder=current_user.username) }}
+                {% for err in username_form.username.errors %}
+                    <div class="field-error">{{ err }}</div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn">Update Username</button>
+        </form>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Change password -->
+    <div class="profile-section">
+        <div class="profile-section-title">// change_password</div>
+        <form method="POST" action="{{ url_for('profile') }}" novalidate>
+            {{ password_form.hidden_tag() }}
+            <input type="hidden" name="form_type" value="pwd-submit">
+            <div class="field">
+                <label>Current Password</label>
+                {{ password_form.current_password(placeholder="Your current password") }}
+                {% for err in password_form.current_password.errors %}
+                    <div class="field-error">{{ err }}</div>
+                {% endfor %}
+            </div>
+            <div class="field">
+                <label>New Password</label>
+                {{ password_form.new_password(placeholder="Min. 8 chars, upper + lower + number") }}
+                {% for err in password_form.new_password.errors %}
+                    <div class="field-error">{{ err }}</div>
+                {% endfor %}
+            </div>
+            <div class="field">
+                <label>Confirm New Password</label>
+                {{ password_form.confirm_new_password(placeholder="Repeat new password") }}
+                {% for err in password_form.confirm_new_password.errors %}
+                    <div class="field-error">{{ err }}</div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn">Update Password</button>
+        </form>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Change photo -->
+    <div class="profile-section">
+        <div class="profile-section-title">// change_photo</div>
+        <div class="photo-preview-row">
+            <img src="{{ url_for('static', filename='uploads/profile_pics/' + current_user.profile_pic) if current_user.profile_pic != 'default.png' else url_for('static', filename='img/default.svg') }}" alt="">
+            <span style="font-size:0.84rem;color:var(--text-dim);">Current photo</span>
+        </div>
+        <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data" novalidate>
+            {{ photo_form.hidden_tag() }}
+            <input type="hidden" name="form_type" value="photo-submit">
+            <div class="field">
+                <label>Upload New Photo (jpg/png/gif, max 2 MB)</label>
+                {{ photo_form.photo(id="photo-photo") }}
+                {% for err in photo_form.photo.errors %}
+                    <div class="field-error">{{ err }}</div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn">Update Photo</button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
