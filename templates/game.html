@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Memory Challenge: {{ module.title }} — CyberVerse{% endblock %}
+{% block content %}
+<div class="game-wrap">
+
+    <div class="lesson-eyebrow">// module_{{ module.order }}.challenge()</div>
+    <h1>Memory Challenge</h1>
+    <p class="game-intro">
+        Match each <strong style="color:var(--green)">term</strong> with its
+        <strong style="color:var(--cyan)">clue</strong>.
+        Find all {{ riddles|length }} pairs to complete <em>{{ module.title }}</em>.
+    </p>
+
+    <div class="game-stats">
+        <span>Pairs matched: <strong id="matched-count">0</strong> / {{ riddles|length }}</span>
+        <span>Flips: <strong id="flip-count">0</strong></span>
+    </div>
+
+    <div class="memory-grid" id="memory-grid">
+        <!-- Cards injected by JS -->
+    </div>
+
+    <div class="game-complete-banner" id="game-banner">
+        <div class="complete-icon">🛡️</div>
+        <div class="complete-title">Module Complete!</div>
+        <p style="color:var(--text-dim);margin:0 0 4px;">You've mastered <strong>{{ module.title }}</strong>.<br>
+        {% if module.order < 7 %}
+        The next module has been unlocked on your dashboard.
+        {% else %}
+        You've completed all 7 CyberVerse modules — excellent work!
+        {% endif %}
+        </p>
+        <div class="complete-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn">Back to Dashboard →</a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const MODULE_ID = {{ module.id }};
+const TOTAL_PAIRS = {{ riddles|length }};
+const PAIRS = [
+    {% for r in riddles %}
+    { id: {{ r.id }}, term: {{ r.term | tojson }}, clue: {{ r.clue | tojson }} },
+    {% endfor %}
+];
+
+// Build card list: one card per term, one per clue
+let cards = [];
+PAIRS.forEach(p => {
+    cards.push({ pairId: p.id, type: "term",  text: p.term });
+    cards.push({ pairId: p.id, type: "clue",  text: p.clue });
+});
+
+// Shuffle
+cards = cards.sort(() => Math.random() - 0.5);
+
+const grid = document.getElementById("memory-grid");
+const matchedCountEl = document.getElementById("matched-count");
+const flipCountEl = document.getElementById("flip-count");
+const banner = document.getElementById("game-banner");
+
+let flipped = [], locked = false, matchedPairs = 0, flips = 0;
+
+cards.forEach((card, idx) => {
+    const div = document.createElement("div");
+    div.className = "mem-card";
+    div.dataset.pairId = card.pairId;
+    div.dataset.type = card.type;
+    div.dataset.idx = idx;
+
+    const typeColor = card.type === "term" ? "var(--green)" : "var(--cyan)";
+    div.innerHTML = `
+        <div class="card-inner">
+            <span class="face-back">🔐</span>
+            <span class="face-front">
+                <span class="card-type-tag" style="color:${typeColor}">${card.type}</span>
+                ${card.text}
+            </span>
+        </div>`;
+    div.addEventListener("click", () => flipCard(div));
+    grid.appendChild(div);
+});
+
+function flipCard(card) {
+    if (locked || card.classList.contains("is-flipped") || card.classList.contains("is-matched")) return;
+    card.classList.add("is-flipped");
+    flips++;
+    flipCountEl.textContent = flips;
+    flipped.push(card);
+
+    if (flipped.length === 2) {
+        locked = true;
+        checkMatch();
+    }
+}
+
+function checkMatch() {
+    const [a, b] = flipped;
+    const sameType = a.dataset.type === b.dataset.type;
+    const samePair = a.dataset.pairId === b.dataset.pairId;
+
+    if (samePair && !sameType) {
+        // Match!
+        a.classList.add("is-matched");
+        b.classList.add("is-matched");
+        matchedPairs++;
+        matchedCountEl.textContent = matchedPairs;
+        flipped = []; locked = false;
+
+        if (matchedPairs === TOTAL_PAIRS) {
+            onGameComplete();
+        }
+    } else {
+        setTimeout(() => {
+            a.classList.remove("is-flipped");
+            b.classList.remove("is-flipped");
+            flipped = []; locked = false;
+        }, 900);
+    }
+}
+
+function onGameComplete() {
+    banner.classList.add("show");
+    // Tell server the game is done
+    fetch(`/module/${MODULE_ID}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json",
+                   "X-CSRFToken": document.cookie.match(/csrftoken=([^;]+)/)?.[1] || "" },
+    });
+}
+</script>
+{% endblock %}
